@@ -11,18 +11,25 @@ class AuthController extends BaseController
     }
 
     public function store()
-    {
-        $model = new UserModel();
+{
+    $model = new UserModel();
 
-        $model->save([
-            'name' => $this->request->getPost('name'),
-            'email' => $this->request->getPost('email'),
-            'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
-        ]);
+    $email = $this->request->getPost('email');
 
-        return redirect()->to('/login');
+    $existing = $model->where('email', $email)->first();
+
+    if ($existing) {
+        return redirect()->back()->with('error', '❌ Email already exists!');
     }
 
+    $model->save([
+        'name' => $this->request->getPost('name'),
+        'email' => $email,
+        'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
+    ]);
+
+    return redirect()->to('/login')->with('success', 'Account created successfully!');
+}
     public function login()
     {
         return view('login');

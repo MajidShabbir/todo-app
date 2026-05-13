@@ -25,19 +25,24 @@ class TodoController extends BaseController
 
 public function store()
 {
-  
+    $model = new UserModel();
 
-    $model = new TodoModel();
+    $email = $this->request->getPost('email');
 
-    $data = [
-        'task' => $this->request->getPost('task'),
-        'status' => 0,
-        'user_id' => session()->get('user_id')
-    ];
+    // check if email already exists
+    $existingUser = $model->where('email', $email)->first();
 
-    $model->save($data);
+    if ($existingUser) {
+        return redirect()->back()->with('error', 'Email already exists!');
+    }
 
-    return redirect()->to('/');
+    $model->save([
+        'name' => $this->request->getPost('name'),
+        'email' => $email,
+        'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
+    ]);
+
+    return redirect()->to('/login');
 }
         
 

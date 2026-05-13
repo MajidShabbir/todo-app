@@ -14,6 +14,11 @@
         <div class="card-body">
 
             <h3 class="text-center mb-4">📝 Register</h3>
+            <?php if(session()->getFlashdata('error')): ?>
+    <div class="alert alert-danger">
+        <?= session()->getFlashdata('error') ?>
+    </div>
+<?php endif; ?>
 
             <form method="post" action="/register">
 
