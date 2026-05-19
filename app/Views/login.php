@@ -16,7 +16,6 @@
             <h3 class="text-center mb-4">🔐 Login</h3>
 
             <form method="post" action="/login">
-                  <?= csrf_field() ?>
 
 
                 <!-- EMAIL -->
@@ -30,6 +29,7 @@
                     <label class="form-label">Password</label>
                     <input type="password" name="password" class="form-control" placeholder="Enter password" required>
                 </div>
+               
 
                 <!-- BUTTON -->
                 <button class="btn btn-primary w-100">Login</button>

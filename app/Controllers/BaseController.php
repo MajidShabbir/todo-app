@@ -32,14 +32,11 @@ abstract class BaseController extends Controller
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Load here all helpers you want to be available in your controllers that extend BaseController.
-        // Caution: Do not put the this below the parent::initController() call below.
-        // $this->helpers = ['form', 'url'];
-
-        // Caution: Do not edit this line.
+        
         parent::initController($request, $response, $logger);
 
-        // Preload any models, libraries, etc, here.
-        // $this->session = service('session');
+          $this->response->setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    $this->response->setHeader('Cache-Control', 'post-check=0, pre-check=0', false);
+    $this->response->setHeader('Pragma', 'no-cache');
     }
 }

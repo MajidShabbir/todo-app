@@ -18,6 +18,7 @@ class TodoController extends BaseController
 
     $data['todos'] = $model
         ->where('user_id', session()->get('user_id'))
+        ->orderBy('id', 'DESC') 
         ->findAll();
 
     return view('todo_list', $data);
@@ -25,63 +26,59 @@ class TodoController extends BaseController
 
 public function store()
 {
-    $model = new UserModel();
+    $model = new TodoModel();
 
-    $email = $this->request->getPost('email');
+     $task = trim($this->request->getPost('task'));
 
-    // check if email already exists
-    $existingUser = $model->where('email', $email)->first();
-
-    if ($existingUser) {
-        return redirect()->back()->with('error', 'Email already exists!');
+    // validation
+    if ($task == '') {
+        return redirect()->to('/')
+            ->with('error', 'Task cannot be empty');
     }
 
     $model->save([
-        'name' => $this->request->getPost('name'),
-        'email' => $email,
-        'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT)
+        'task' => $this->request->getPost('task'),
+        'user_id' => session()->get('user_id'),
+        'status' => 0
     ]);
 
-    return redirect()->to('/login');
-}
-        
+    return redirect()->to('/');
+}   
 
   public function delete($id)
 {
     $model = new TodoModel();
+    $userId = session()->get('user_id');
 
-    $model->where('id', $id)
-          ->where('user_id', session()->get('user_id'))
-          ->delete();
+    $deleted = $model
+        ->where('id', $id)
+        ->where('user_id', $userId)
+        ->delete();
 
-    return redirect()->to('/');
-}
-
-    public function toggle($id)
-    {
-        $model = new TodoModel();
-        $todo = $model->find($id);
-
-        $model->update($id, [
-            'status' => $todo['status'] ? 0 : 1
-        ]);
-
-        return redirect()->to('/');
+    if (!$deleted) {
+        return redirect()->back()
+            ->with('error', '❌ Not allowed to delete this task.');
     }
+
+    return redirect()->back()
+        ->with('success', '✔ Task deleted');
+}
 
 public function edit($id)
 {
     $model = new TodoModel();
+    $userId = session()->get('user_id');
 
-    $data['todo'] = $model
-        ->where('id', $id)
-        ->where('user_id', session()->get('user_id'))
-        ->first();
+    $todo = $model->find($id);
 
-    return view('edit_todo', $data);
+    // ❌ not found OR belongs to another user
+    if (!$todo || $todo['user_id'] != $userId) {
+        return redirect()->to('/')
+            ->with('error', '❌ You are not allowed to access this task.');
+    }
+
+    return view('edit_todo', ['todo' => $todo]);
 }
-    
-
 public function update($id)
 {
     $model = new TodoModel();
@@ -92,6 +89,39 @@ public function update($id)
               'task' => $this->request->getPost('task')
           ])
           ->update();
+
+    return redirect()->to('/');
+}
+public function adminDashboard()
+{
+    if (session()->get('role') !== 'admin') {
+        return redirect()->to('/dashboard');
+    }
+
+    $model = new TodoModel();
+
+    $data['todos'] = $model->select('todos.*, users.name')
+        ->join('users', 'users.id = todos.user_id')
+        ->findAll();
+
+    return view('todos/admin_dashboard', $data);
+}
+public function toggle($id)
+{
+    $model = new \App\Models\TodoModel();
+
+    $task = $model->find($id);
+
+    if (!$task) {
+        return redirect()->to('/');
+    }
+
+    // toggle status
+    $newStatus = ($task['status'] == 1) ? 0 : 1;
+
+    $model->update($id, [
+        'status' => $newStatus
+    ]);
 
     return redirect()->to('/');
 }

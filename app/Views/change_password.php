@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 
-    <title>Edit Profile</title>
+    <title>Change Password</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
@@ -17,37 +18,36 @@
         <div class="card-body">
 
             <h2 class="mb-4">
-                ✏ Edit Profile
+                🔒 Change Password
             </h2>
 
-            <form method="post" action="/profile/update">
+            <form method="post"
+                  action="/profile/password/update">
 
                 <div class="mb-3">
 
-                    <label>Name</label>
+                    <label>Old Password</label>
 
-                    <input type="text"
-                           name="name"
-                           value="<?= $user['name'] ?>"
+                    <input type="password"
+                           name="old_password"
                            class="form-control">
 
                 </div>
 
                 <div class="mb-3">
 
-                    <label>Email</label>
+                    <label>New Password</label>
 
-                    <input type="email"
-                           name="email"
-                           value="<?= $user['email'] ?>"
+                    <input type="password"
+                           name="new_password"
                            class="form-control">
 
                 </div>
 
                 <button type="submit"
-                        class="btn btn-primary">
+                        class="btn btn-warning">
 
-                    Update Profile
+                    Update Password
                 </button>
 
             </form>
